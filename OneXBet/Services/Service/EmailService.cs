@@ -1,0 +1,135 @@
+﻿
+using MailKit.Net.Smtp;
+using MailKit.Security;
+
+using Microsoft.Extensions.Options;
+
+using MimeKit;
+
+using OneXBet.Services.IService;
+using OneXBet.Services.Settings;
+
+namespace OneXBet.Services.Service;
+
+public class EmailService : IEmailService
+{
+    private readonly EmailSettings _emailSettings;
+    public EmailService(IOptions<EmailSettings> options)
+    {
+        _emailSettings = options.Value;
+    }
+    //public bool SendEmail(string userEmail, string confirmationLink)
+    //{
+    //    MailMessage mailMessage = new MailMessage();
+    //    mailMessage.From = new MailAddress(_emailSettings.Sender);
+    //    mailMessage.To.Add(new MailAddress(userEmail));
+
+    //    mailMessage.Subject = "Confirm your email";
+    //    mailMessage.IsBodyHtml = true;
+    //    mailMessage.Body = confirmationLink;
+
+    //    SmtpClient client = new SmtpClient();
+    //    client.Credentials = new System.Net.NetworkCredential(_emailSettings.Sender, _emailSettings.Password);
+    //    client.Host = _emailSettings.Host;
+    //    client.Port = _emailSettings.Port;
+
+    //    try
+    //    {
+    //        client.Send(mailMessage);
+    //        return true;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        // log exception
+    //    }
+    //    return false;
+    //}
+
+    public async Task<bool>
+       SendEmailAsync(string mailTo, string subject, string body, IReadOnlyList<IFormFile> attachments = null)
+    {
+        try
+        {
+            // build body
+            var bodyBuilder = new BodyBuilder()
+            {
+                HtmlBody = body,
+            };
+
+            if (attachments != null)
+            {
+                byte[] fileBytes;
+
+                foreach (var file in attachments)
+                {
+                    if (file.Length > 0)
+                    {
+                        using var ms = new MemoryStream();
+                        file.CopyTo(ms);
+                        fileBytes = ms.ToArray();
+
+                        // add files
+                        bodyBuilder.Attachments.Add(file.FileName, fileBytes, ContentType.Parse(file.ContentType));
+                    }
+                }
+            }
+
+            // create email 
+            var email = new MimeMessage
+            {
+                Sender = MailboxAddress.Parse(_emailSettings.Sender),
+                Subject = subject,
+                Body = bodyBuilder.ToMessageBody(),
+            };
+
+            email.To.Add(MailboxAddress.Parse(mailTo));
+            email.From.Add(new MailboxAddress(_emailSettings.DisplayName, _emailSettings.Sender));
+
+            // connect to smtp
+            using var smtp = new SmtpClient();
+
+            smtp.Connect(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.SslOnConnect);
+            smtp.Authenticate(_emailSettings.Sender, _emailSettings.Password);
+            var serviceMessage = await smtp.SendAsync(email);
+            await smtp.DisconnectAsync(true);
+
+            return true;
+
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    //public async Task<bool> ConfirmEmailAsync(string? userId, string? token)
+    //{
+    //    // new String(request.Plate.Where(Char.IsDigit).ToArray()).ToLower();
+
+    //    //code = new String(code.Where(c => !Char.IsWhiteSpace(c)).ToArray());
+
+    //    var user = await _context.Users.RetrieveAsync(u => u.Id.Equals(userId));
+    //    var result = await _context.Users.Manager.ConfirmEmailAsync(user!, token!);
+
+    //    if (string.IsNullOrEmpty(userId) ||
+    //        string.IsNullOrWhiteSpace(userId) ||
+    //        string.IsNullOrEmpty(token) ||
+    //        string.IsNullOrWhiteSpace(token) ||
+    //        user is null ||
+    //        !result.Succeeded)
+
+    //        return new()
+    //        {
+    //            Token = token,
+    //            UserId = userId,
+    //            IsEmailConfirmed = false,
+    //        };
+
+    //    return new()
+    //    {
+    //        Token = token,
+    //        UserId = userId,
+    //        IsEmailConfirmed = true,
+    //    };
+    //}
+}
