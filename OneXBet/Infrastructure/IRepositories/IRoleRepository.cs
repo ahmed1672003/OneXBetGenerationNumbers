@@ -1,5 +1,5 @@
 ﻿namespace OneXBet.Infrastructure.IRepositories;
 
-public interface IRoleRepository
+public interface IRoleRepository : IRepository<Role>
 {
 }

@@ -1,3 +1,6 @@
+using OneXBet.Infrastructure.IRepositories;
+using OneXBet.Infrastructure.Repositories;
+using OneXBet.Infrastructure.Specifications;
 using OneXBet.Services.IService;
 using OneXBet.Services.Service;
 using OneXBet.Services.Settings;
@@ -26,9 +29,9 @@ var builder = WebApplication.CreateBuilder(args);
        .AddIdentity<User, Role>(options =>
        {
            #region Email Options
-           options.SignIn.RequireConfirmedEmail = true;
+           options.SignIn.RequireConfirmedEmail = false;
            options.SignIn.RequireConfirmedPhoneNumber = false;
-           options.SignIn.RequireConfirmedAccount = true;
+           options.SignIn.RequireConfirmedAccount = false;
            #endregion
 
            #region Stores Options
@@ -74,8 +77,22 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddScoped<UserManager<User>>();
     builder.Services.AddScoped<SignInManager<User>>();
     builder.Services.AddScoped<RoleManager<Role>>();
+    builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+    builder.Services.AddScoped(typeof(ISpecification<>), typeof(Specification<>));
+    builder.Services.AddScoped<IOneXBetGenerationNumbersDbContext, OneXBetGenerationNumbersDbContext>();
+    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+    builder.Services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
+    builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+    builder.Services.AddScoped<IUserLoginRepository, UserLoginRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+    builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+    builder.Services.AddScoped<IIdentityRepository, IdentityRepository>();
+
+
     builder.Services.AddScoped<IUnitOfServices, UnitOfServices>();
     builder.Services.AddScoped<IEmailService, EmailService>();
+
     #endregion
 }
 

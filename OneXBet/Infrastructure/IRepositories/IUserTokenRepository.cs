@@ -1,5 +1,5 @@
 ﻿namespace OneXBet.Infrastructure.IRepositories;
 
-public interface IUserTokenRepository
+public interface IUserTokenRepository : IRepository<UserToken>
 {
 }
