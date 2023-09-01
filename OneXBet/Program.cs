@@ -88,11 +88,8 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
     builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
     builder.Services.AddScoped<IIdentityRepository, IdentityRepository>();
-
-
     builder.Services.AddScoped<IUnitOfServices, UnitOfServices>();
     builder.Services.AddScoped<IEmailService, EmailService>();
-
     #endregion
 }
 
