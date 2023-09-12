@@ -1,13 +1,13 @@
-﻿using OneXBet.Services.IService;
+﻿namespace OneXBet.Services.Service;
 
-namespace OneXBet.Services.Service;
-
-public class UnitOfServices : IUnitOfServices
+public sealed class UnitOfServices : IUnitOfServices
 {
     public IEmailService EmailService { get; private set; }
+    public IHttpContextService HttpContextService { get; private set; }
 
-    public UnitOfServices(IEmailService emailService)
+    public UnitOfServices(IEmailService emailService, IHttpContextService httpContextService)
     {
         EmailService = emailService;
+        HttpContextService = httpContextService;
     }
 }

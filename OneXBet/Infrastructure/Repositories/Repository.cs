@@ -1,5 +1,4 @@
-﻿using OneXBet.Infrastructure.IRepositories;
-using OneXBet.Infrastructure.Specifications;
+﻿using OneXBet.Infrastructure.Repositories.Contracts;
 
 namespace OneXBet.Infrastructure.Repositories;
 
@@ -31,20 +30,20 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 
     public virtual async Task<int> ExecuteUpdateAsync(ISpecification<TEntity> specification, CancellationToken cancellationToken = default)
     {
-        if (specification.Criteria is null)
-            return await _entities
-                    .ExecuteUpdateAsync(entity =>
-                        entity.SetProperty(
-                            specification.ExecuteUpdateRequirments.PropertyExpression,
-                            specification.ExecuteUpdateRequirments.ValueExpression), cancellationToken);
+        //if (specification.Criteria is null)
+        //    return await _entities
+        //            .ExecuteUpdateAsync(entity =>
+        //                entity.SetProperty(
+        //                    specification.ExecuteUpdateRequirments.PropertyExpression,
+        //                    specification.ExecuteUpdateRequirments.ValueExpression), cancellationToken);
 
-        else
-            return await _entities
-                         .Where(specification.Criteria)
-                             .ExecuteUpdateAsync(entity =>
-                                  entity.SetProperty(
-                                     specification.ExecuteUpdateRequirments.PropertyExpression,
-                                     specification.ExecuteUpdateRequirments.ValueExpression), cancellationToken);
+        //else
+        return await _entities
+                     .Where(e => specification.IsSatisfiedBy(e))
+                         .ExecuteUpdateAsync(entity =>
+                              entity.SetProperty(
+                                 specification.ExecuteUpdateRequirments.PropertyExpression,
+                                 specification.ExecuteUpdateRequirments.ValueExpression), cancellationToken);
     }
 
     public virtual Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
@@ -54,27 +53,27 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
 
     public virtual async Task<int> ExecuteDeleteAsync(ISpecification<TEntity> specification = null, CancellationToken cancellationToken = default)
     {
-        if (specification.Criteria is null)
-            return await _entities.ExecuteDeleteAsync(cancellationToken);
-        else
-            return await _entities.Where(specification.Criteria).ExecuteDeleteAsync(cancellationToken);
+        //if (specification.Criteria is null)
+        //    return await _entities.ExecuteDeleteAsync(cancellationToken);
+        //else
+        return await _entities.Where(e => specification.IsSatisfiedBy(e)).ExecuteDeleteAsync(cancellationToken);
     }
     #endregion
     #region Queries
     public virtual async Task<bool> AnyAsync(ISpecification<TEntity> specification = null, CancellationToken cancellationToken = default)
     {
-        if (specification.Criteria is null)
-            return await _entities.AnyAsync(cancellationToken);
-        else
-            return await _entities.AllAsync(specification.Criteria, cancellationToken);
+        //if (specification.Criteria is null)
+        //    return await _entities.AnyAsync(cancellationToken);
+        //else
+        return await _entities.AllAsync(e => specification.IsSatisfiedBy(e), cancellationToken);
     }
 
     public virtual async Task<int> CountAsync(ISpecification<TEntity> specification = null, CancellationToken cancellationToken = default)
     {
-        if (specification.Criteria is null)
-            return await _entities.CountAsync(cancellationToken);
-        else
-            return await _entities.CountAsync(specification.Criteria, cancellationToken);
+        //if (specification.Criteria is null)
+        //    return await _entities.CountAsync(cancellationToken);
+        //else
+        return await _entities.CountAsync(e => specification.IsSatisfiedBy(e), cancellationToken);
 
     }
     public virtual Task<IQueryable<TEntity>> RetrieveAllAsync

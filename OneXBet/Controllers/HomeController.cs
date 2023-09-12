@@ -8,13 +8,14 @@ namespace OneXBet.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    private readonly IUnitOfServices _unitOfServices;
+    public HomeController(ILogger<HomeController> logger, IUnitOfServices unitOfServices)
     {
         _logger = logger;
+        _unitOfServices = unitOfServices;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
         return View();
     }
@@ -29,4 +30,6 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+
 }

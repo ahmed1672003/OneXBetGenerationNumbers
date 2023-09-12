@@ -1,19 +1,16 @@
 ﻿using System.Linq.Expressions;
 
-using OneXBet.Infrastructure.IRepositories;
+using OneXBet.Infrastructure.Repositories.Contracts;
+using OneXBet.Infrastructure.Specifications.Expressions;
+
 namespace OneXBet.Infrastructure.Specifications;
 
-public class Specification<TEntity> : ISpecification<TEntity> where TEntity : class
+public abstract class Specification<TEntity> : ISpecification<TEntity> where TEntity : class
 {
-    public Specification() { }
-
-    public Specification(Expression<Func<TEntity, bool>> firstCriteria)
+    public Specification()
     {
-        Criteria = firstCriteria;
+        PaginationRequirments = (1, 10);
     }
-
-    public Expression<Func<TEntity, bool>> Criteria { get; protected set; }
-
     public List<Expression<Func<TEntity, object>>> Includes { get; private set; }
         = new List<Expression<Func<TEntity, object>>>();
 
@@ -55,4 +52,15 @@ public class Specification<TEntity> : ISpecification<TEntity> where TEntity : cl
         IsPagingEnabled = true;
     }
     protected virtual void ApplyGroupBy(Expression<Func<TEntity, object>> groupBy) => GroupBy = groupBy;
+
+    public abstract bool IsSatisfiedBy(TEntity entity);
+
+    public ISpecification<TEntity> And(ISpecification<TEntity> left, ISpecification<TEntity> right) =>
+        AndSpecification<TEntity>.Create(left, right);
+
+    public ISpecification<TEntity> Or(ISpecification<TEntity> left, ISpecification<TEntity> right) =>
+        OrSpecification<TEntity>.Create(left, right);
+
+    public ISpecification<TEntity> Not(ISpecification<TEntity> specification) =>
+        NotSpecification<TEntity>.Create(specification);
 }

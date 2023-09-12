@@ -1,15 +1,8 @@
-using OneXBet.Infrastructure.IRepositories;
-using OneXBet.Infrastructure.Repositories;
-using OneXBet.Infrastructure.Specifications;
-using OneXBet.Services.IService;
-using OneXBet.Services.Service;
-using OneXBet.Services.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 #region Services
-
 // Data Base Context
 {
     #region DbContext
@@ -70,15 +63,15 @@ var builder = WebApplication.CreateBuilder(args);
        .AddDefaultUI();
     #endregion
 }
-
 // Dependecies
 {
     #region Dependecies
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<UserManager<User>>();
     builder.Services.AddScoped<SignInManager<User>>();
     builder.Services.AddScoped<RoleManager<Role>>();
     builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-    builder.Services.AddScoped(typeof(ISpecification<>), typeof(Specification<>));
+    //builder.Services.AddScoped(typeof(ISpecification<>), typeof(Specification<>));
     builder.Services.AddScoped<IOneXBetGenerationNumbersDbContext, OneXBetGenerationNumbersDbContext>();
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
@@ -90,6 +83,17 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddScoped<IIdentityRepository, IdentityRepository>();
     builder.Services.AddScoped<IUnitOfServices, UnitOfServices>();
     builder.Services.AddScoped<IEmailService, EmailService>();
+    builder.Services.AddScoped<IHttpContextService, HttpContextService>();
+    #endregion
+}
+
+// libraries 
+{
+    #region Libraries
+    builder.Services
+           .AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+    builder.Services
+           .AddAutoMapper(Assembly.GetExecutingAssembly());
     #endregion
 }
 
@@ -100,7 +104,6 @@ var builder = WebApplication.CreateBuilder(args);
     #endregion
 }
 #endregion
-
 
 builder.Services.AddControllersWithViews();
 
@@ -123,7 +126,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-//app.UseAuthentication();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

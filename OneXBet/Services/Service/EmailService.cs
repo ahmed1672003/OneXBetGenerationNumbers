@@ -6,15 +6,14 @@ using Microsoft.Extensions.Options;
 
 using MimeKit;
 
-using OneXBet.Services.IService;
-using OneXBet.Services.Settings;
+using OneXBet.Services.Service.Contracts;
 
 namespace OneXBet.Services.Service;
 
-public class EmailService : IEmailService
+public sealed class EmailService : IEmailService
 {
     private readonly EmailSettings _emailSettings;
-    public EmailService(IOptions<EmailSettings> options)
+    public EmailService(IOptions<EmailSettings> options, IHttpContextAccessor httpContextAccessor)
     {
         _emailSettings = options.Value;
     }

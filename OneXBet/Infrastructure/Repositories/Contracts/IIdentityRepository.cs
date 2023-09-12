@@ -1,8 +1,8 @@
-﻿namespace OneXBet.Infrastructure.IRepositories;
+﻿namespace OneXBet.Infrastructure.Repositories.Contracts;
 
 public interface IIdentityRepository
 {
     UserManager<User> UserManager { get; }
     SignInManager<User> SignInManager { get; }
-    RoleManager<User> RoleManager { get; }
+    RoleManager<Role> RoleManager { get; }
 }

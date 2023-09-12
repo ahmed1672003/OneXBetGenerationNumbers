@@ -1,4 +1,4 @@
-﻿using OneXBet.Infrastructure.IRepositories;
+﻿using OneXBet.Infrastructure.Repositories.Contracts;
 
 namespace OneXBet.Infrastructure.Repositories;
 

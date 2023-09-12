@@ -1,4 +1,4 @@
-﻿namespace OneXBet.Services.IService;
+﻿namespace OneXBet.Services.Service.Contracts;
 
 public interface IEmailService
 {

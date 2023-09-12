@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 
-namespace OneXBet.Infrastructure.IRepositories;
+namespace OneXBet.Infrastructure.Repositories.Contracts;
 
 public interface IUnitOfWork : IAsyncDisposable
 {

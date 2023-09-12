@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-
-using OneXBet.Services.IService;
+using OneXBet.Services.Service.Contracts;
 
 namespace OneXBet.Areas.Identity.Pages.Account
 {

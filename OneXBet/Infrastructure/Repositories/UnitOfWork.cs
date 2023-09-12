@@ -1,20 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 
-using OneXBet.Infrastructure.IRepositories;
+using OneXBet.Infrastructure.Repositories.Contracts;
 
 namespace OneXBet.Infrastructure.Repositories;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly IOneXBetGenerationNumbersDbContext _db;
+    private readonly OneXBetGenerationNumbersDbContext _db;
     public UnitOfWork(
+        OneXBetGenerationNumbersDbContext db,
         IRoleClaimRepository roleClaims,
         IRoleRepository roles,
         IUserLoginRepository usersLogins,
         IUserRepository users,
         IUserRoleRepository userRoles,
         IUserTokenRepository userTokens,
-        IOneXBetGenerationNumbersDbContext db,
         IIdentityRepository identity)
     {
         _db = db;
