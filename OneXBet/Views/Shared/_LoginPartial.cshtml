@@ -1,9 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
+@*@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager*@
+@inject IUnitOfWork _context
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
+
+@if (_context.Identity.SignInManager.IsSignedIn(User))
 {
     <li class="nav-item navbar-li">
         <a  class="nav-link btn btn-primary" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
@@ -19,10 +21,12 @@
 else
 {
     <li class="nav-item navbar-li" style="">
-        <a class="nav-link btn btn-success" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        @*<a class="nav-link btn btn-success" asp-area="Identity" asp-page="/Account/Register">Register</a>*@
+        <a class="nav-link btn btn-success" asp-area="" asp-controller="Auth" asp-action="PostUser">Register</a>
     </li>
     <li class="nav-item navbar-li">
-        <a class="nav-link btn btn-primary" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        @*<a class="nav-link btn btn-primary" asp-area="Identity" asp-page="/Account/Login">Login</a>*@
+        <a class="nav-link btn btn-primary" asp-area="" asp-controller="Auth" asp-action="LoginUser">Login</a>
     </li>
 }
 </ul>

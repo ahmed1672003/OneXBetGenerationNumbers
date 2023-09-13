@@ -1,32 +1,29 @@
 ﻿using System.Linq.Expressions;
 
-using OneXBet.Infrastructure.Repositories.Contracts;
 using OneXBet.Infrastructure.Specifications.Expressions;
 
 namespace OneXBet.Infrastructure.Specifications;
 
 public abstract class Specification<TEntity> : ISpecification<TEntity> where TEntity : class
 {
-    public Specification()
+    public Specification(Expression<Func<TEntity, bool>> criteria = null)
     {
         PaginationRequirments = (1, 10);
+        Criteria = criteria;
     }
     public List<Expression<Func<TEntity, object>>> Includes { get; private set; }
         = new List<Expression<Func<TEntity, object>>>();
-
-    public List<string> IncludesString { get; private set; } = new List<string>();
-
+    public Expression<Func<TEntity, bool>> Criteria { get; private set; }
     public Expression<Func<TEntity, object>> OrderBy { get; private set; }
-
     public Expression<Func<TEntity, object>> OrderByDescending { get; private set; }
-
+    public Expression<Func<TEntity, object>> GroupBy { get; private set; }
     public (Func<TEntity, object> PropertyExpression, Expression<Func<TEntity, object>> ValueExpression) ExecuteUpdateRequirments { get; private set; }
+    public List<string> IncludesString { get; private set; } = new List<string>();
 
     public (int? pageNumber, int? pageSize) PaginationRequirments { get; private set; }
 
     public bool IsPagingEnabled { get; private set; }
 
-    public Expression<Func<TEntity, object>> GroupBy { get; private set; }
 
     protected virtual void AddIncludes(
                           Expression<Func<TEntity, object>> include) =>

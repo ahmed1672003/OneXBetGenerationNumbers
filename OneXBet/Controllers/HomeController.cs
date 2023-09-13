@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 
-using Microsoft.AspNetCore.Mvc;
-
 using OneXBet.Models;
 
 namespace OneXBet.Controllers;
+
+
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -15,7 +15,8 @@ public class HomeController : Controller
         _unitOfServices = unitOfServices;
     }
 
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public IActionResult Index()
     {
         return View();
     }

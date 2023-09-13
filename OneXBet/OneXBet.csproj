@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="MailKit" Version="4.1.0" />
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.9" />
@@ -23,8 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\" />
-    <Folder Include="Infrastructure\Specifications\User\" />
+    <Folder Include="Application\Featurs\Email\EmailMapper\" />
+    <Folder Include="Application\Featurs\Email\Queries\" />
+    <Folder Include="Application\Featurs\Orders\Commands\Handlers\" />
+    <Folder Include="Application\Featurs\Orders\OrderMapper\" />
+    <Folder Include="Application\Featurs\Orders\Queries\Handlers\" />
+    <Folder Include="Application\Featurs\Orders\ViewModels\" />
+    <Folder Include="Infrastructure\Specifications\Orders\" />
   </ItemGroup>
 
 </Project>

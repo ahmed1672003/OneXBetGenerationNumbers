@@ -1,58 +1,67 @@
-﻿
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 
 using Microsoft.Extensions.Options;
 
 using MimeKit;
 
-using OneXBet.Services.Service.Contracts;
+using OneXBet.Infrastructure.Specifications.Users;
 
 namespace OneXBet.Services.Service;
 
 public sealed class EmailService : IEmailService
 {
     private readonly EmailSettings _emailSettings;
-    public EmailService(IOptions<EmailSettings> options, IHttpContextAccessor httpContextAccessor)
+    private readonly IUnitOfWork _context;
+    public EmailService(IOptions<EmailSettings> options, IHttpContextAccessor httpContextAccessor, IUnitOfWork context)
     {
         _emailSettings = options.Value;
+        _context = context;
     }
-    //public bool SendEmail(string userEmail, string confirmationLink)
-    //{
-    //    MailMessage mailMessage = new MailMessage();
-    //    mailMessage.From = new MailAddress(_emailSettings.Sender);
-    //    mailMessage.To.Add(new MailAddress(userEmail));
-
-    //    mailMessage.Subject = "Confirm your email";
-    //    mailMessage.IsBodyHtml = true;
-    //    mailMessage.Body = confirmationLink;
-
-    //    SmtpClient client = new SmtpClient();
-    //    client.Credentials = new System.Net.NetworkCredential(_emailSettings.Sender, _emailSettings.Password);
-    //    client.Host = _emailSettings.Host;
-    //    client.Port = _emailSettings.Port;
-
-    //    try
-    //    {
-    //        client.Send(mailMessage);
-    //        return true;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        // log exception
-    //    }
-    //    return false;
-    //}
 
     public async Task<bool>
        SendEmailAsync(string mailTo, string subject, string body, IReadOnlyList<IFormFile> attachments = null)
     {
         try
         {
+            var htmlPage =
+                @"<html>
+                  <head>
+                    <style>
+                    .card {
+                            padding: 10px;
+                            background-color: #eee;
+                            min-height: 80px;
+                            max-width: 50%;
+                            margin: auto;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            border-radius: 20px;
+                        }
+                     .link {
+                            text-decoration: none;
+                            padding: 10px;
+                            background: #61c261;
+                            border-radius: 23px;
+                            color: white;
+                            font-family: cursive;
+                        }
+                    </style>
+                  </head>
+                  <body>
+                    <div class='card'>
+                        <a class='link' href= > Confirm Email </a>
+                    </div>
+                  </body>
+                </html>";
+            htmlPage = htmlPage.Replace("href=", $"href={body}");
+
             // build body
             var bodyBuilder = new BodyBuilder()
             {
-                HtmlBody = body,
+                //HtmlBody = $"<a href={body}> Confirm Email</a>",
+                HtmlBody = htmlPage,
             };
 
             if (attachments != null)
@@ -101,34 +110,28 @@ public sealed class EmailService : IEmailService
         }
     }
 
-    //public async Task<bool> ConfirmEmailAsync(string? userId, string? token)
-    //{
-    //    // new String(request.Plate.Where(Char.IsDigit).ToArray()).ToLower();
+    public async Task<(bool statues, int? userId)> ConfirmEmailAsync(string userId, string token)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrWhiteSpace(userId) ||
+            string.IsNullOrEmpty(token) || string.IsNullOrWhiteSpace(token))
+            return (false, null);
 
-    //    //code = new String(code.Where(c => !Char.IsWhiteSpace(c)).ToArray());
+        if (!int.TryParse(userId, out int id))
+            return (false, null);
 
-    //    var user = await _context.Users.RetrieveAsync(u => u.Id.Equals(userId));
-    //    var result = await _context.Users.Manager.ConfirmEmailAsync(user!, token!);
+        var getUserByIdSpec = GetUserByEmailSpecification.Create(id);
+        var user = await _context.Identity.UserManager.FindByIdAsync(userId);
 
-    //    if (string.IsNullOrEmpty(userId) ||
-    //        string.IsNullOrWhiteSpace(userId) ||
-    //        string.IsNullOrEmpty(token) ||
-    //        string.IsNullOrWhiteSpace(token) ||
-    //        user is null ||
-    //        !result.Succeeded)
+        if (user is null)
+            return (false, null);
 
-    //        return new()
-    //        {
-    //            Token = token,
-    //            UserId = userId,
-    //            IsEmailConfirmed = false,
-    //        };
+        var result = await _context.Identity.UserManager.ConfirmEmailAsync(user, token);
 
-    //    return new()
-    //    {
-    //        Token = token,
-    //        UserId = userId,
-    //        IsEmailConfirmed = true,
-    //    };
-    //}
+        if (!result.Succeeded)
+            return (false, null);
+
+        //await _context.Identity.SignInManager.SignInAsync(user, true);
+
+        return (true, user.Id);
+    }
 }

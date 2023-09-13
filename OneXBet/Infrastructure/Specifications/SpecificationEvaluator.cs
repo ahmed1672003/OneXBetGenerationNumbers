@@ -1,6 +1,4 @@
-﻿using OneXBet.Infrastructure.Repositories.Contracts;
-
-namespace OneXBet.Infrastructure.Specifications;
+﻿namespace OneXBet.Infrastructure.Specifications;
 
 public class SpecificationEvaluator
 {
@@ -13,8 +11,8 @@ public class SpecificationEvaluator
         if (specification is null)
             return query;
 
-        query = query.Where(entity => specification.IsSatisfiedBy(entity));
-
+        if (specification.Criteria is not null)
+            query = query.Where(specification.Criteria);
 
         query = specification.Includes.Aggregate(query, (current, include) => current.Include(include));
 

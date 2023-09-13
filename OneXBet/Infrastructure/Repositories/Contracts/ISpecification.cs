@@ -4,6 +4,7 @@ namespace OneXBet.Infrastructure.Repositories.Contracts;
 
 public interface ISpecification<TEntity> where TEntity : class
 {
+    Expression<Func<TEntity, bool>> Criteria { get; }
     Expression<Func<TEntity, object>> GroupBy { get; }
     List<Expression<Func<TEntity, object>>> Includes { get; }
     List<string> IncludesString { get; }

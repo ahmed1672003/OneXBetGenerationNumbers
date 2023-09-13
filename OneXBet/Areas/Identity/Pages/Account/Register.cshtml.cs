@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using OneXBet.Services.Service.Contracts;
 
 namespace OneXBet.Areas.Identity.Pages.Account
 {
@@ -25,6 +24,7 @@ namespace OneXBet.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IUnitOfServices _services;
+        private readonly IUnitOfWork _context;
 
         public RegisterModel(
             UserManager<User> userManager,
@@ -32,7 +32,8 @@ namespace OneXBet.Areas.Identity.Pages.Account
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            IUnitOfServices services)
+            IUnitOfServices services,
+            IUnitOfWork context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -41,6 +42,7 @@ namespace OneXBet.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _services = services;
+            _context = context;
         }
 
         /// <summary>
@@ -130,13 +132,13 @@ namespace OneXBet.Areas.Identity.Pages.Account
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ExternalLogins = (await _context.Identity.SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ExternalLogins = (await _context.Identity.SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -147,15 +149,13 @@ namespace OneXBet.Areas.Identity.Pages.Account
                 user.PhoneNumber = Input.PhoneNumber;
                 var userName = new MailAddress(Input.Email).User;
 
-                await _userStore.SetUserNameAsync(user, userName, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, Input.Password);
+                await _context.Identity.UserStore.SetUserNameAsync(user, userName, CancellationToken.None);
+                await _context.Identity.UserEmailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                var result = await _context.Identity.UserManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-
-
 
                     //{
                     //    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -166,8 +166,8 @@ namespace OneXBet.Areas.Identity.Pages.Account
                     //        return RedirectToPage("Account/ConfirmEmail");
                     //}
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var userId = await _context.Identity.UserManager.GetUserIdAsync(user);
+                    var code = await _context.Identity.UserManager.GenerateEmailConfirmationTokenAsync(user);
 
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -179,19 +179,17 @@ namespace OneXBet.Areas.Identity.Pages.Account
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-
-
                     {
 
                     }
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    if (_context.Identity.UserManager.Options.SignIn.RequireConfirmedAccount)
                     {
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        await _context.Identity.SignInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
                 }
@@ -221,11 +219,11 @@ namespace OneXBet.Areas.Identity.Pages.Account
 
         private IUserEmailStore<User> GetEmailStore()
         {
-            if (!_userManager.SupportsUserEmail)
+            if (!_context.Identity.UserManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<User>)_userStore;
+            return (IUserEmailStore<User>)_context.Identity.UserStore;
         }
     }
 }

@@ -1,3 +1,6 @@
+using System.Globalization;
+
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
                                     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
     builder.Services
            .AddDbContext<OneXBetGenerationNumbersDbContext>(options => options.UseSqlServer(connectionString));
+
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
     #endregion
 }
@@ -66,6 +70,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Dependecies
 {
     #region Dependecies
+    builder.Services.AddHttpClient();
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<UserManager<User>>();
     builder.Services.AddScoped<SignInManager<User>>();
@@ -101,6 +106,28 @@ var builder = WebApplication.CreateBuilder(args);
 {
     #region Configurations
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("emailSettings"));
+    #endregion
+}
+
+// localization
+{
+    #region Localization
+    builder.Services
+           .AddLocalization(/*options => options.ResourcesPath = ""*/)
+           .Configure<RequestLocalizationOptions>(options =>
+           {
+               var supportedCultures = new[]
+               {
+                    new CultureInfo("en-US"), // english
+                    new CultureInfo("ar-EG"), // arabic
+                    new CultureInfo("de-DE"), // germaney
+                    new CultureInfo("fr-FR"), // frensh
+                    new CultureInfo("es"), // spanish
+               };
+               options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
+               options.SupportedCultures = supportedCultures;
+               options.SupportedUICultures = supportedCultures;
+           });
     #endregion
 }
 #endregion

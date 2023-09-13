@@ -1,8 +1,16 @@
 ﻿global using System.Reflection;
 
-global using Microsoft.AspNetCore.Identity;
-global using Microsoft.EntityFrameworkCore;
+global using MediatR;
 
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Storage;
+global using Microsoft.Extensions.Localization;
+
+global using OneXBet.Application.Featurs.Users.Commands;
+global using OneXBet.Application.Featurs.Users.ViewModels;
+global using OneXBet.Application.Resources;
 global using OneXBet.Infrastructure.Repositories;
 global using OneXBet.Infrastructure.Repositories.Contracts;
 global using OneXBet.Infrastructure.Specifications;

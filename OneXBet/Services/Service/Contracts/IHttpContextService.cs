@@ -2,5 +2,7 @@
 
 public interface IHttpContextService
 {
+    IHttpContextAccessor ContextAccessor { get; }
+
     Task<string> RetrieveCurrentUserNameAsync();
 }
